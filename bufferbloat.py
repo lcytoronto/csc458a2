@@ -87,9 +87,9 @@ class BBTopo(Topo):
         maxq = args.maxq
 
         print("add link from h1 to switch")
-        self.addLink(hosts[0], switch, bw=bw_host, delay='%sms' % delay, max_queue_size=maxq)
+        self.addLink(hosts[0], switch, bw=bw_host, delay=delay, max_queue_size=maxq)
         print("add link from switch to h2")
-        self.addLink(switch, hosts[1], bw=bw_net, delay='%sms' % delay, max_queue_size=maxq)
+        self.addLink(switch, hosts[1], bw=bw_net, delay=delay, max_queue_size=maxq)
         return
 
 
@@ -123,7 +123,7 @@ def start_iperf(net):
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
     h1 = net.get('h1')
-    h1.cmd("iperf -t %s -c %s -w 16m -o %s/iperf_result.txt" % (args.time, h2.IP(), args.dir))
+    h1.popen("iperf -t %s -c %s -w 16m > %s/iperf_result.txt" % (args.time, h2.IP(), args.dir), shell=True)
 
 def start_webserver(net):
     h1 = net.get('h1')
