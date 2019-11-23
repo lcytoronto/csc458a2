@@ -145,7 +145,7 @@ def start_ping(net):
     h1 = net.get('h1')
     h2 = net.get('h2')
 
-    popen = h1.popen("echo 'ping -i 0.1 %s ' > %s/ping.txt" % (h2.IP(), args.dir), shell=True)
+    popen = h1.popen("ping -i 0.1 %s > %s/ping.txt" % (h2.IP(), args.dir), shell=True)
 
 
 def bufferbloat():
@@ -203,7 +203,6 @@ def bufferbloat():
     while True:
         # do the measurement (say) 3 times.
         for i in range(3):
-            print("measurement number %s" % (i + 1))
             p = h1.popen("curl -o /dev/null -s -w %s %s/http/index.html" % ("%{time_total}", h2.IP()), shell=True)
             time_total = float(p.communicate()[0])
             measurement.append(time_total)
