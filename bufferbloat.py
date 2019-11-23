@@ -144,6 +144,7 @@ def start_ping(net):
     # redirecting stdout
     h1 = net.get('h1')
     h2 = net.get('h2')
+
     popen = h1.popen("echo 'ping -i 0.1 %s ' > %s/ping.txt" % (h2.IP(), args.dir), shell=True)
 
 
@@ -180,6 +181,7 @@ def bufferbloat():
 
     # TODO: Start iperf, webservers, etc.
     start_iperf(net)
+    print ("Starting ping train from h1 to h2")
     start_webserver(net)
     # Hint: The command below invokes a CLI which you can use to
     # debug.  It allows you to run arbitrary commands inside your
@@ -198,12 +200,12 @@ def bufferbloat():
     h2 = net.get('h2')
     h1 = net.get('h1')
     measurement = []
-    time_total = 0.0
     while True:
         # do the measurement (say) 3 times.
         for i in range(3):
-            h1.popen("curl -o /dev/null -s -w %s %s/http/index.html" % ("{time_total}", h2.IP()), shell=True)
-            time_total = float(h1.communicate()[0])
+            print("measurement number %s" % (i + 1))
+            p = h1.popen("curl -o /dev/null -s -w %s %s/http/index.html" % ("{time_total}", h2.IP()), shell=True)
+            time_total = float(p.communicate()[0])
             measurement.append(time_total)
         sleep(1)
         now = time()
