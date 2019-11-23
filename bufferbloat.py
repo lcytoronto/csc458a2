@@ -81,6 +81,17 @@ class BBTopo(Topo):
         switch = self.addSwitch('s0')
 
         # TODO: Add links with appropriate characteristics
+        delay = args.delay
+        bw_host=args.bw_host
+        bw_net = args.bw_net
+        maxq = args.maxq
+
+        print("add link from h1 to switch")
+        self.addlink(hosts[0], switch, bw=bw_host, delay='%sms' % delay, max_queue_size=maxq)
+        print("add link from switch to h2")
+        self.addlink(switch, hosts[1], bw=bw_net, delay='%sms' % delay, max_queue_size=maxq)
+        return
+
 
 # Simple wrappers around monitoring utilities.  You are welcome to
 # contribute neatly written (using classes) monitoring scripts for
@@ -111,6 +122,8 @@ def start_iperf(net):
     server = h2.popen("iperf -s -w 16m")
     # TODO: Start the iperf client on h1.  Ensure that you create a
     # long lived TCP flow. You may need to redirect iperf's stdout to avoid blocking.
+    h1 = net.get('h1')
+    h1.cmd("iperf -t %s -c %s -w 16m -o %s/iperf_result.txt" % (args.time, h2.IP(), args.dir))
 
 def start_webserver(net):
     h1 = net.get('h1')
@@ -130,7 +143,9 @@ def start_ping(net):
     # until stdout is read. You can avoid this by runnning popen.communicate() or
     # redirecting stdout
     h1 = net.get('h1')
-    popen = h1.popen("echo '' > %s/ping.txt"%(args.dir), shell=True)
+    h2 = net.get('h2')
+    popen = h1.popen("echo 'ping -i 0.1 %s ' > %s/ping.txt" % (h2.IP(), args.dir), shell=True)
+
 
 def bufferbloat():
     if not os.path.exists(args.dir):
@@ -159,13 +174,13 @@ def bufferbloat():
     # Depending on the order you add links to your network, this
     # number may be 1 or 2.  Ensure you use the correct number.
     #
-    # qmon = start_qmon(iface='s0-eth2',
-    #                  outfile='%s/q.txt' % (args.dir))
-    qmon = None
+    qmon = start_qmon(iface='s0-eth2', outfile='%s/q.txt' % args.dir)
+
+
 
     # TODO: Start iperf, webservers, etc.
-    # start_iperf(net)
-
+    start_iperf(net)
+    start_webserver(net)
     # Hint: The command below invokes a CLI which you can use to
     # debug.  It allows you to run arbitrary commands inside your
     # emulated hosts h1 and h2.
@@ -180,8 +195,16 @@ def bufferbloat():
     # Hint: have a separate function to do this and you may find the
     # loop below useful.
     start_time = time()
+    h2 = net.get('h2')
+    h1 = net.get('h1')
+    measurement = []
+    time_total = 0.0
     while True:
         # do the measurement (say) 3 times.
+        for i in range(3):
+            h1.popen("curl -o /dev/null -s -w %s %s/http/index.html" % ("{time_total}", h2.IP()), shell=True)
+            time_total = float(h1.communicate()[0])
+            measurement.append(time_total)
         sleep(1)
         now = time()
         delta = now - start_time
@@ -192,7 +215,13 @@ def bufferbloat():
     # TODO: compute average (and standard deviation) of the fetch
     # times.  You don't need to plot them.  Just note it in your
     # README and explain.
-
+    average = sum(measurement) / len(measurement)
+    sd = 0.0
+    for data in measurement:
+        sd += (float(data) - average)**2
+    sd = math.sqrt(sd / float(len(measurement) - 1))
+    print("the average of the fetch is %s" % average)
+    print("the standard deviation of the fetch is %s" % sd)
     stop_tcpprobe()
     if qmon is not None:
         qmon.terminate()
