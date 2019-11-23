@@ -87,9 +87,9 @@ class BBTopo(Topo):
         maxq = args.maxq
 
         print("add link from h1 to switch")
-        self.addlink(hosts[0], switch, bw=bw_host, delay='%sms' % delay, max_queue_size=maxq)
+        self.addLink(hosts[0], switch, bw=bw_host, delay='%sms' % delay, max_queue_size=maxq)
         print("add link from switch to h2")
-        self.addlink(switch, hosts[1], bw=bw_net, delay='%sms' % delay, max_queue_size=maxq)
+        self.addLink(switch, hosts[1], bw=bw_net, delay='%sms' % delay, max_queue_size=maxq)
         return
 
 
