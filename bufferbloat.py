@@ -207,7 +207,7 @@ def bufferbloat():
             p = h2.popen("curl -o /dev/null -s -w %s %s/http/index.html" % ("%{time_total}", h1.IP()), shell=True)
             time_total = float(p.communicate()[0])
             measurement.append(time_total)
-        sleep(1)
+        sleep(5)
         now = time()
         delta = now - start_time
         if delta > args.time:
