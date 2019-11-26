@@ -1,0 +1,16 @@
+
+The average and standard deviation of the fetch of buffer size 20 is 0.5446 and 0.287861508847. 
+The average and standard deviation of the fetch of buffer size 100 is 1.34414285714 and 0.804425527051.
+
+
+1. The larger router buffer will have a longer webpage fetch time.  The reason for this situation is bufferbloat happens here. The sender keeps on increasing its windows size until it filled up the buffer. When the packets are coming, they are congested in the buffer, but with longer buffer size, The sender will not know it quickly. It will keep sending packets at high rates. Also, the buffer adds latency to the fetch time. With larger buffer, it will take longer time to empty the buffer. With small buffer size, the router will drop packets much quickly, so the sender will manage the sending rate in a better way.
+
+2.The transmit queue length is 1000. So the queue has 1000 * 1.5KB = 1.5MB = 12Mb packets at most. So the maximum time a packet might wait in the queue is 12Mb/(100Mb/s) = 0.12s
+
+3. RTT reported by ping increase when the queue size increase. 
+The symbolic equation is as follows:
+RTT = Propagation delay + transimission delay + queue_length * MTU/ transmission rate
+
+4. The first way to mitigate is to reduce buffer size. This will reduce queueing delay when the buffer has a lot of packets. However, this will increase the packet loss rate, which make the sender know that there is a congestion much quickly.
+
+The second way to mitigate is using QoS to prioritizing certain kinds of packets over others. This will allow certain important packets to go through the router quickly.
