@@ -207,8 +207,8 @@ def bufferbloat():
         sleep(5)
         time_total_list = p.communicate()[0].split(",")
         print(time_total_list)
-        for ele in time_total_list:
-            measurement.append(float(ele))
+        for i in range(3):
+            measurement.append(float(time_total_list[i]))
         now = time()
         delta = now - start_time
         if delta > args.time:
