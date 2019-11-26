@@ -206,7 +206,6 @@ def bufferbloat():
         p = h2.popen("curl -o /dev/null -s -w %s %s/http/index.html/?[1-3]" % ("%{time_total},", h1.IP()), shell=True)
         sleep(5)
         time_total_list = p.communicate()[0].split(",")
-        print(time_total_list)
         for i in range(3):
             measurement.append(float(time_total_list[i]))
         now = time()
